@@ -1,0 +1,33 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: list-unattached-disks
+  namespace: default
+  labels:
+    app: list-unattached-disks
+spec:
+  schedule: "30 5 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"		# If you are using istio
+        spec:
+          securityContext:
+            runAsGroup: 2001
+            runAsNonRoot: true
+            runAsUser: 1001
+          containers:
+            - name: list-unattached-disks
+              image: "image_name" 			# Change image name here after building the image and pushing it to your private registry.
+              imagePullPolicy: IfNotPresent
+              env:
+              - name: AWS_ACCESS_KEY_ID
+                value: "xxx"	     # Change values here
+              - name: AWS_SECRET_ACCESS_KEY
+                value: "xxx"         # Change values here
+              - name: AWS_DEFAULT_REGION
+                value: "us-east-2"  # Change values here
+          restartPolicy: OnFailure
+
